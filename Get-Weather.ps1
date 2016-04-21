@@ -12,9 +12,9 @@ param(
 
 $API = "YourKey"
 <#
-	The following will capture weather data. Note that this is in metric (캜) units.
-	To change to imperial (캟) change '&units=metric' to '&units=imperial'
-	as well as all instances of '캜' to '캟'.
+	The following will capture weather data. Note that this is in metric (째C) units.
+	To change to imperial (째F) change '&units=metric' to '&units=imperial'
+	as well as all instances of '째C' to '째F'.
 #>
 
 
@@ -62,9 +62,9 @@ $windy = "900","901","902","903","904","905","906","951","952","953","954","955"
 
 <# Create the variables we will use to display weather information #>
 $weather = "Current Weather: " + (Get-Culture).textinfo.totitlecase($currentValue.tolower())
-$currentTemp = "Current Temp: " + [Math]::Round($data.temperature.value, 0) + " 캜"
-$high = "Today's High: " + [Math]::Round($data.temperature.max, 0) + " 캜"
-$low = "Today's Low: " + [Math]::Round($data.temperature.min, 0) + " 캜"
+$currentTemp = "Current Temp: " + [Math]::Round($data.temperature.value, 0) + " 째C"
+$high = "Today's High: " + [Math]::Round($data.temperature.max, 0) + " 째C"
+$low = "Today's Low: " + [Math]::Round($data.temperature.min, 0) + " 째C"
 $humidity = "Humidity: " + $data.humidity.value + $data.humidity.unit
 $precipitation = "Rain: " + (Get-Culture).textinfo.totitlecase($rainValue.tolower())
 $windSpeed = "Wind Speed: " + ([math]::Round(([decimal]$data.wind.speed.value * 1.609344),1)) + " km/h" + " - Direction: " + $data.wind.direction.code
@@ -177,11 +177,11 @@ IF ($data.weather.number -contains $thunder)
 		}
 	ELSEIF ($data.weather.number -contains $cloudy)
 		{
-		Write-Host "	    .--.   		$weather		$humidity"
+		Write-Host "	    .--.   		$weather	$humidity"
 		Write-Host "	 .-(    ). 		$currenttemp			$precipitation"
 		Write-Host "	(___.__)__)		$high			$windspeed"
-		Write-Host "	            	$low			$windcondition"
-		Write-Host "					$sunrise		$sunset"
+		Write-Host "	            		$low			$windcondition"
+		Write-Host "				$sunrise			$sunset"
 		Write-Host ""
 		}
 	ELSEIF ($data.weather.number -contains $windy)
