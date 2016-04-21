@@ -9,3 +9,8 @@ You will need to obtain an API Key from http://openweathermap.org/api
 This script will use XML to gather the weather data, except for the sunrise/sunset information which was easier to interpret via JSON.
 
 There are a vew variables which you must change, these are documented within the script.
+
+
+To-Do:
+- Clean-up the formatting so that the display is consistent.
+- Add some better documentation both in script and in README.md
