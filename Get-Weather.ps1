@@ -8,7 +8,7 @@ param(
 <# BEGIN VARIABLES #>
 
 
-<# Get your API Key (it's free) from http://openweathermap.org/api #>
+<# Get your API Key (it's free!) from http://openweathermap.org/api #>
 
 $API = "YourKey"
 <#
