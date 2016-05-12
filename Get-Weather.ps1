@@ -1,22 +1,45 @@
 function Get-Weather {
-<# Change to your City/Country #>
+<#
+    .SYNOPSIS
+		Shows current weather conditions in PowerShell console.
+	   
+    .DESCRIPTION
+		This scirpt will show the current weather conditions for your area in your PowerShell console.
+		While you could use the script on its own, it is highly recommended to add it to your profile.
+		See https://technet.microsoft.com/en-us/library/ff461033.aspx for more info.
+
+		You will need to get an OpenWeather API key from http://openweathermap.org/api - it's free.
+		Once you have your key, replace "YOUR_API_KEY" with your key.
+	   
+		Note that weather results are displayed in metric (°C) units.
+		To switch to imperial (°F) change all instances of '&units=metric' to '&units=imperial'
+		as well as all instances of '°C' to '°F'. 
+	   
+    .EXAMPLE
+		Get-Weather -City Toronto -Country CA
+	   
+		In this example, we will get the weather for Toronto, CA.
+		If you do not leave in a major city, select the closest one to you. Note that the country code is the two-digit code for your country. 
+		For a list of country codes, see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
+	   
+    .NOTES
+		Written by Nick Tamm, nicktamm.com
+		I take no responsibility for any issues caused by this script.
+	   
+    .LINK
+		https://github.com/obs0lete/Get-Weather
+		
+#>
+
 param(
-	[string]$City = "YourCity",
-	[string]$Country = "YourCountry")
+	[string]$City,
+	[string]$Country)
 
 
 <# BEGIN VARIABLES #>
 
-
-<# Get your API Key (it's free!) from http://openweathermap.org/api #>
-
-$API = "YourKey"
-<#
-	The following will capture weather data. Note that this is in metric (°C) units.
-	To change to imperial (°F) change '&units=metric' to '&units=imperial'
-	as well as all instances of '°C' to '°F'.
-#>
-
+<# Get your API Key (it's free) from http://openweathermap.org/api #>
+$API = "YOUR_API_KEY"
 
 <#JSON request for sunrise/sunset #>
 $resultsJSON = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&mode=json"
@@ -72,9 +95,7 @@ $windCondition = "Wind Condition: " + (Get-Culture).textinfo.totitlecase($windva
 $sunrise = "Sunrise: " + $sunrise
 $sunset = "Sunset: " + $sunset
 
-
 <# END VARIABLES #>
-
 
 Write-Host ""
 Write-Host "Current weather conditions for" $data.city.name
@@ -121,7 +142,7 @@ IF ($thunder.Contains($data.weather.number))
 			Write-Host "	   (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
 			Write-Host "	  (___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
 			Write-Host "	  * * * * 		$low			$windcondition"
-			Write-Host "	 * * * *  		$sunrise		$sunset"
+			Write-Host "	 * * * *  		$sunrise			$sunset"
 			Write-Host "	  * * * * "
 			Write-Host ""
 		}
@@ -131,7 +152,7 @@ IF ($thunder.Contains($data.weather.number))
 			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
 			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
 			Write-Host "	 */ */* 		$low			$windcondition"
-			Write-Host "	* /* /* 		$sunrise		$sunset"
+			Write-Host "	* /* /* 		$sunrise			$sunset"
 			Write-Host ""
 		}
 	ELSEIF  ($atmosphere.Contains($data.weather.number))
@@ -140,7 +161,7 @@ IF ($thunder.Contains($data.weather.number))
 			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
 			Write-Host "	_ - _ - _ -		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
 			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$low			$windcondition" -f white;
-			Write-Host "					$sunrise		$sunset"
+			Write-Host "				$sunrise			$sunset"
 			Write-Host ""
 		}
 	<#	
@@ -171,13 +192,13 @@ IF ($thunder.Contains($data.weather.number))
 			Write-Host "	   \ | /   		" -f Yellow -nonewline; Write-Host "$weather		$humidity" -f white;
 			Write-Host "	    .-.    		" -f Yellow -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
 			Write-Host "	-- (  .--. 		$high			$windspeed"  
-			Write-Host "	   .-(    ). 	$low			$windcondition" 
-			Write-Host "	  (___.__)__)	$sunrise		$sunset"
+			Write-Host "	   .-(    ). 		$low			$windcondition" 
+			Write-Host "	  (___.__)__)		$sunrise			$sunset"
 			Write-Host ""
 		}
 	ELSEIF ($cloudy.Contains($data.weather.number))
 		{
-		Write-Host "	    .--.   		$weather	$humidity"
+		Write-Host "	    .--.   		$weather		$humidity"
 		Write-Host "	 .-(    ). 		$currenttemp			$precipitation"
 		Write-Host "	(___.__)__)		$high			$windspeed"
 		Write-Host "	            		$low			$windcondition"
@@ -190,6 +211,6 @@ IF ($thunder.Contains($data.weather.number))
 		Write-Host "	 ~~~~~ .-(    ). 		$currenttemp			$precipitation"
 		Write-Host "	~~~~~ (___.__)__)		$high			$windspeed"
 		Write-Host "	                 		$low			$windcondition"
-		Write-Host "							$sunrise		$sunset"
+		Write-Host "					$sunrise			$sunset"
 		}
 }
