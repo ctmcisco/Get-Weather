@@ -189,7 +189,7 @@ IF ($thunder.Contains($data.weather.number))
 		}
 	ELSEIF ($partlyCloudy.Contains($data.weather.number))
 		{
-			Write-Host "	   \ | /   		" -f Yellow -nonewline; Write-Host "$weather		$humidity" -f white;
+			Write-Host "	   \ | /   		" -f Yellow -nonewline; Write-Host "$weather	$humidity" -f white;
 			Write-Host "	    .-.    		" -f Yellow -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
 			Write-Host "	-- (  .--. 		$high			$windspeed"  
 			Write-Host "	   .-(    ). 		$low			$windcondition" 
