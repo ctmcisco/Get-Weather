@@ -38,8 +38,20 @@ param(
 
 <# BEGIN VARIABLES #>
 
-<# Get your API Key (it's free) from http://openweathermap.org/api #>
+<# Get your API Key (it's free) from http://openweathermap.org/api and change the value below with your key #>
 $API = "YOUR_API_KEY"
+
+<# Check if you have entered an API key and if not, exit the script.
+Do NOT change this value, only the one above! #>
+IF ($API -eq "YOUR_API_KEY")
+{
+Write-Host ""
+Write-Warning "You have not set your API Key!"
+Write-Host "Please go to http://openweathermap.org/api to get your API key - it's free."
+Write-Host "Once you have your key, change the value in the $" -nonewline; Write-Host "API variable with your key and re-run this script."
+Write-Host ""
+exit
+}
 
 <#JSON request for sunrise/sunset #>
 $resultsJSON = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&mode=json"
@@ -61,10 +73,16 @@ $data = $results.current
 <# Get current weather value. Needed to convert case of characters. #>
 $currentValue = $data.weather.value
 
-<# Get rain value. Needed to convert case of characters. #>
-$rainValue = $data.precipitation.mode
+<# Get precipitation mode (type of precipitation). Needed to convert case of characters. #>
+$precipitationValue = $data.precipitation.mode
 
-<# Get rain value. Needed to convert case of characters. #>
+<# Get precipitation amount (in mm). Needed to convert case of characters. #>
+$precipitationMM = $data.precipitation.value
+
+<# Get precipitation unit (mm in last x hours). Needed to convert case of characters. #>
+$precipitationHRS = $data.precipitation.unit
+
+<# Get wind speed value. Needed to convert case of characters. #>
 $windValue = $data.wind.speed.name
 
 <# Get the current time. This is for clear conditions at night time. #>
@@ -84,84 +102,93 @@ $cloudy = "804"
 $windy = "900","901","902","903","904","905","906","951","952","953","954","955","956","957","958","959","960","961","962"
 
 <# Create the variables we will use to display weather information #>
-$weather = "Current Weather: " + (Get-Culture).textinfo.totitlecase($currentValue.tolower())
+$weather = (Get-Culture).textinfo.totitlecase($currentValue.tolower())
 $currentTemp = "Current Temp: " + [Math]::Round($data.temperature.value, 0) + " °C"
 $high = "Today's High: " + [Math]::Round($data.temperature.max, 0) + " °C"
 $low = "Today's Low: " + [Math]::Round($data.temperature.min, 0) + " °C"
 $humidity = "Humidity: " + $data.humidity.value + $data.humidity.unit
-$precipitation = "Rain: " + (Get-Culture).textinfo.totitlecase($rainValue.tolower())
+$precipitation = "Precipitation: " + (Get-Culture).textinfo.totitlecase($precipitationValue.tolower())
+
+<# Checking if there is precipitation and if so, display the values in $precipitationMM and $precipitationHRS #>
+IF ($precipitation -eq "Precipitation: No")
+{
+$precipitationData = "Precip. Data: No Precipitation"
+} ELSE {
+$precipitationData = "Precip. Data: " + $precipitationMM + "mm in the last "  + $precipitationHRS
+}
+
 $windSpeed = "Wind Speed: " + ([math]::Round(([decimal]$data.wind.speed.value * 1.609344),1)) + " km/h" + " - Direction: " + $data.wind.direction.code
-$windCondition = "Wind Condition: " + (Get-Culture).textinfo.totitlecase($windvalue.tolower())
+$windCondition = "Wind Condition: " + (Get-Culture).textinfo.totitlecase($windValue.tolower())
 $sunrise = "Sunrise: " + $sunrise
 $sunset = "Sunset: " + $sunset
 
 <# END VARIABLES #>
 
 Write-Host ""
-Write-Host "Current weather conditions for" $data.city.name
+Write-Host "Current weather conditions for" $data.city.name -nonewline; Write-Host " -" $weather -f yellow;
 Write-Host ""
 IF ($thunder.Contains($data.weather.number))
 {	
-	Write-Host "	    .--.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-	Write-Host "	 .-(    ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-	Write-Host "	(___.__)__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-	Write-Host "	  /_   /_  		" -f yellow -nonewline; Write-Host "$low			$windcondition" -f white;
-	Write-Host "	   /    /  		" -f yellow -nonewline; Write-Host "$sunrise			$sunset" -f white;
+	Write-Host "	    .--.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+	Write-Host "	 .-(    ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+	Write-Host "	(___.__)__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+	Write-Host "	  /_   /_  		" -f yellow -nonewline; Write-Host "$sunrise		$windspeed" -f white;
+	Write-Host "	   /    /  		" -f yellow -nonewline; Write-Host "$sunset		$windcondition" -f white;
 	Write-Host ""
 }
 	ELSEIF ($drizzle.Contains($data.weather.number))
 		{
-			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	 / / / 			" -f cyan -nonewline; Write-Host "$low			$windcondition" -f white;
-			Write-Host "	  /  			" -f cyan -nonewline; Write-Host "$sunrise			$sunset" -f white;
+			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	 / / / 			" -f cyan -nonewline; Write-Host "$sunrise		$windspeed" -f white;
+			Write-Host "	  /  			" -f cyan -nonewline; Write-Host "$sunset		$windcondition" -f white;
 			Write-Host ""
 		}
 	ELSEIF  ($rain.Contains($data.weather.number))
 		{
-			Write-Host "	    .-.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	   (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	  (___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	 //////// 		" -f cyan -nonewline; Write-Host "$low			$windcondition" -f white;
-			Write-Host "	 /////// 		" -f cyan -nonewline; Write-Host "$sunrise			$sunset" -f white;
+			Write-Host "	    .-.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	   (   ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	  (___(__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	 //////// 		" -f cyan -nonewline; Write-Host "$sunrise		$windspeed" -f white;
+			Write-Host "	 /////// 		" -f cyan -nonewline; Write-Host "$sunset		$windcondition" -f white;
 			Write-Host ""
 		}
 	ELSEIF  ($lightSnow.Contains($data.weather.number))
 		{
-			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	 *  *  *		$low			$windcondition"
-			Write-Host "	*  *  * 		$sunrise			$sunset"
+			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	 *  *  *		$sunrise		$windspeed"
+			Write-Host "	*  *  * 		$sunset		$windcondition"
 			Write-Host ""
 		}
 	ELSEIF  ($heavySnow.Contains($data.weather.number))
 		{
-			Write-Host "	    .-.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	   (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	  (___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	  * * * * 		$low			$windcondition"
-			Write-Host "	 * * * *  		$sunrise			$sunset"
+			Write-Host "	    .-.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	   (   ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	  (___(__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	  * * * * 		$sunrise		$windspeed"
+			Write-Host "	 * * * *  		$sunset		$windcondition"
 			Write-Host "	  * * * * "
 			Write-Host ""
 		}
 	ELSEIF  ($snowAndRain.Contains($data.weather.number))
 		{
-			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	 */ */* 		$low			$windcondition"
-			Write-Host "	* /* /* 		$sunrise			$sunset"
+			Write-Host "	  .-.   		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	 (   ). 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	(___(__)		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	 */ */* 		$sunrise		$windspeed"
+			Write-Host "	* /* /* 		$sunset		$windcondition"
 			Write-Host ""
 		}
 	ELSEIF  ($atmosphere.Contains($data.weather.number))
 		{
-			Write-Host "	_ - _ - _ -		" -f gray -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	_ - _ - _ -		" -f gray -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$low			$windcondition" -f white;
-			Write-Host "				$sunrise			$sunset"
+			Write-Host "	_ - _ - _ -		" -f gray -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	_ - _ - _ -		" -f gray -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	 _ - _ - _ 		" -f gray -nonewline; Write-Host "$sunrise		$windspeed" -f white;
+			Write-Host "				$sunset		$windcondition"
 			Write-Host ""
 		}
 	<#	
@@ -170,47 +197,47 @@ IF ($thunder.Contains($data.weather.number))
 	#>
 	ELSEIF  ($clear.Contains($data.weather.number) -and $time -gt "18:00:00")
 		{
-			Write-Host "	    *  --.			$weather			$humidity"
-			Write-Host "	        \  \   *		$currenttemp			$precipitation"
-			Write-Host "	         )  |    *		$high			$windspeed"
-			Write-Host "	*       <   |			$low			$windcondition"
-			Write-Host "	   *    ./ /	  		$sunrise			$sunset"
+			Write-Host "	    *  --.			$currenttemp		$humidity"
+			Write-Host "	        \  \   *		$high		$precipitation"
+			Write-Host "	         )  |    *		$low		$precipitationData"
+			Write-Host "	*       <   |			$sunrise		$windspeed"
+			Write-Host "	   *    ./ /	  		$sunset		$windcondition"
 			Write-Host "	       ---'   *   "
 			Write-Host ""
 		}
 	ELSEIF  ($clear.Contains($data.weather.number))
 		{
-			Write-Host "	   \ | /  		" -f Yellow -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	    .-.   		" -f Yellow -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	-- (   ) --		" -f Yellow -nonewline; Write-Host "$high			$windspeed" -f white;
-			Write-Host "	    ``'``   		" -f Yellow -nonewline; Write-Host "$low			$windcondition" -f white;
-			Write-Host "	   / | \  		"-f yellow -nonewline; Write-Host "$sunrise			$sunset" -f white;
+			Write-Host "	   \ | /  		" -f Yellow -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	    .-.   		" -f Yellow -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	-- (   ) --		" -f Yellow -nonewline; Write-Host "$low		$precipitationData" -f white;
+			Write-Host "	    ``'``   		" -f Yellow -nonewline; Write-Host "$sunrise		$windspeed" -f white;
+			Write-Host "	   / | \  		"-f yellow -nonewline; Write-Host "$sunset		$windcondition" -f white;
 			Write-Host ""
 		}
 	ELSEIF ($partlyCloudy.Contains($data.weather.number))
 		{
-			Write-Host "	   \ | /   		" -f Yellow -nonewline; Write-Host "$weather			$humidity" -f white;
-			Write-Host "	    .-.    		" -f Yellow -nonewline; Write-Host "$currenttemp			$precipitation" -f white;
-			Write-Host "	-- (  .--. 		$high			$windspeed"  
-			Write-Host "	   .-(    ). 		$low			$windcondition" 
-			Write-Host "	  (___.__)__)		$sunrise			$sunset"
+			Write-Host "	   \ | /   		" -f Yellow -nonewline; Write-Host "$currenttemp		$humidity" -f white;
+			Write-Host "	    .-.    		" -f Yellow -nonewline; Write-Host "$high		$precipitation" -f white;
+			Write-Host "	-- (  .--. 		$low		$precipitationData"  
+			Write-Host "	   .-(    ). 		$sunrise		$windspeed" 
+			Write-Host "	  (___.__)__)		$sunset		$windcondition"
 			Write-Host ""
 		}
 	ELSEIF ($cloudy.Contains($data.weather.number))
 		{
-		Write-Host "	    .--.   		$weather			$humidity"
-		Write-Host "	 .-(    ). 		$currenttemp			$precipitation"
-		Write-Host "	(___.__)__)		$high			$windspeed"
-		Write-Host "	            		$low			$windcondition"
-		Write-Host "				$sunrise			$sunset"
+		Write-Host "	    .--.   		$currenttemp		$humidity"
+		Write-Host "	 .-(    ). 		$high		$precipitation"
+		Write-Host "	(___.__)__)		$low		$precipitationData"
+		Write-Host "	            		$sunrise		$windspeed"
+		Write-Host "				$sunset		$windcondition"
 		Write-Host ""
 		}
 	ELSEIF ($windy.Contains($data.weather.number))
 		{
-		Write-Host "	~~~~      .--.   		$weather			$humidity"
-		Write-Host "	 ~~~~~ .-(    ). 		$currenttemp			$precipitation"
-		Write-Host "	~~~~~ (___.__)__)		$high			$windspeed"
-		Write-Host "	                 		$low			$windcondition"
-		Write-Host "					$sunrise			$sunset"
+		Write-Host "	~~~~      .--.   		$currenttemp		$humidity"
+		Write-Host "	 ~~~~~ .-(    ). 		$high		$precipitation"
+		Write-Host "	~~~~~ (___.__)__)		$low		$precipitationData"
+		Write-Host "	                 		$sunrise		$windspeed"
+		Write-Host "					$sunset		$windcondition"
 		}
 }
