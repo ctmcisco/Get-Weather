@@ -54,20 +54,24 @@ exit
 }
 
 <#JSON request for sunrise/sunset #>
-$resultsJSON = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&mode=json"
+$resultsJSON = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&type=accurate&mode=json"
 $json = $resultsJSON.Content
 $jsonData = ConvertFrom-Json $json
 $sunriseJSON = $jsonData.sys.sunrise
 $sunsetJSON = $jsonData.sys.sunset
+$lastUpdateJSON = $jsonData.dt
 
 <# Convert UNIX UTC time to readable format #>
 $sunrise = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($sunriseJSON))
 $sunset = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($sunsetJSON))
+$lastUpdate = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($lastUpdateJSON))
 $sunrise =  "{0:hh:mm:ss tt}" -f (Get-Date $sunrise)
 $sunset = "{0:hh:mm:ss tt}" -f (Get-Date $sunset)
+$lastUpdate = "{0:hh:mm:ss tt}" -f (Get-Date $lastUpdate)
+
 
 <# XML request for everything else #>
-[xml]$results = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&mode=xml"
+[xml]$results = Invoke-WebRequest "api.openweathermap.org/data/2.5/weather?q=$City,$Country&units=metric&appid=$API&type=accurate&mode=xml"
 $data = $results.current
 
 <# Get current weather value. Needed to convert case of characters. #>
@@ -126,6 +130,7 @@ $sunset = "Sunset: " + $sunset
 
 Write-Host ""
 Write-Host "Current weather conditions for" $data.city.name -nonewline; Write-Host " -" $weather -f yellow;
+Write-Host "Last Updated:" -nonewline; Write-Host "" $lastUpdate -f yellow;
 Write-Host ""
 IF ($thunder.Contains($data.weather.number))
 {	
