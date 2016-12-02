@@ -19,7 +19,7 @@ function Get-Weather {
 		Get-Weather -City Toronto -Country CA
 	   
 		In this example, we will get the weather for Toronto, CA.
-		If you do not leave in a major city, select the closest one to you. Note that the country code is the two-digit code for your country. 
+		If you do not live in a major city, select the closest one to you. Note that the country code is the two-digit code for your country. 
 		For a list of country codes, see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
 	   
     .NOTES
