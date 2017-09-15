@@ -61,7 +61,7 @@ $sunriseJSON = $jsonData.sys.sunrise
 $sunsetJSON = $jsonData.sys.sunset
 $lastUpdateJSON = $jsonData.dt
 
-<# Convert UNIX UTC time to readable format #>
+<# Convert UNIX UTC time to (human) readable format #>
 $sunrise = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($sunriseJSON))
 $sunset = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($sunsetJSON))
 $lastUpdate = [TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($lastUpdateJSON))
