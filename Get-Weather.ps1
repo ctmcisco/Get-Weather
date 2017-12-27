@@ -107,9 +107,9 @@ $windy = "900","901","902","903","904","905","906","951","952","953","954","955"
 
 <# Create the variables we will use to display weather information #>
 $weather = (Get-Culture).textinfo.totitlecase($currentValue.tolower())
-$currentTemp = "Current Temp: " + [Math]::Round($data.temperature.value, 0) + " °C"
-$high = "Today's High: " + [Math]::Round($data.temperature.max, 0) + " °C"
-$low = "Today's Low: " + [Math]::Round($data.temperature.min, 0) + " °C"
+$currentTemp = "Current Temp: " + [Math]::Round($data.temperature.value, 0) + [char] 176 + "c"
+$high = "Today's High: " + [Math]::Round($data.temperature.max, 0) + [char] 176 + "c"
+$low = "Today's Low: " + [Math]::Round($data.temperature.min, 0) + [char] 176 + "c"
 $humidity = "Humidity: " + $data.humidity.value + $data.humidity.unit
 $precipitation = "Precipitation: " + (Get-Culture).textinfo.totitlecase($precipitationValue.tolower())
 
