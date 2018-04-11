@@ -245,5 +245,4 @@ IF ($thunder.Contains($data.weather.number))
 		Write-Host "	                 		$sunrise		$windspeed"
 		Write-Host "					$sunset		$windcondition"
 		}
-		#Useless comment for a test.
 }
