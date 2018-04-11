@@ -1,8 +1,8 @@
 # Get-Weather
-A Powershell function that will display weather conditions in the console. 
+A PowerShell function that will display weather conditions in the console. 
 ![Alt text](/get-weather_ss.png?raw=true "Get-Weather Screenshot")
 
-This script has only been tested on Powershell v5. Add this function to your profile for best results.
+This script has only been tested on PowerShell v5. Add this function to your profile for best results.
 The function is called by way of Get-Weather. 
 
 You will need to obtain an API Key from http://openweathermap.org/api
